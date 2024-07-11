@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { HomePage } from "../../Page-object/homePage";
 
 test.beforeEach( async ({page}) => {
-    await page.goto('https://www.ing.pl/')
+    await page.goto('/')
 })
+
 
 test('Should verify cookie policy frame', async ({page}) => {
     // Arrange 
@@ -19,6 +21,7 @@ test('Should verify cookie policy frame', async ({page}) => {
         const cookieButton = await cookieFrame.locator(`button:has-text("${buttonText}")`).first();
         await expect(cookieButton).toHaveText(buttonText);
     }
+    await page.close();
 })
 
 
@@ -41,10 +44,9 @@ test('Should be able to customise cookies using the toggle buttons', async ({pag
         await manuToggleButton.check({force: true})
         expect(await manuToggleButton.isChecked()).toBeTruthy()
     }
-
+    await page.close();
     /* Manipulate & uncheck only enabled toggle buttons sequentially */
     // for (const manuToggleButton of await allManuToggleButtons.all()) {
-    //     // Pomiń pierwszy przycisk, jeśli istnieje
     //     if (manuToggleButton === allManuToggleButtons[0]) {
     //         continue
     //     } else {
@@ -59,21 +61,23 @@ test('Should reject all cookies', async ({page}) => {
     // Arrange 
     const cookieFrame = page.locator('.cookie-policy-content')
     const customiseButton = cookieFrame.locator('.cookie-policy-btn-wrapper').getByRole('button', {name: "Odrzuć wszystkie"})
+    const cookiePolicyInfoBox = page.getByText('Twoje ustawienia zostały')
     // Act
     await customiseButton.click()
     // Assert
-
-
+    await expect(cookiePolicyInfoBox).toContainText('Twoje ustawienia zostały zapisane')
+    await page.close();
 })
 
 
 test('Should accept all cookies', async ({page}) => {
-        // Arrange 
-        const cookieFrame = page.locator('.cookie-policy-content')
-        const customiseButton = cookieFrame.locator('.cookie-policy-btn-wrapper').getByRole('button', {name: "Zaakceptuj wszystkie"})
-        // Act
-        await customiseButton.click()
-        // Assert
-
+    // Arrange 
+    const customiseButton = page.locator('.cookie-policy-btn-wrapper').getByRole('button', {name: "Zaakceptuj wszystkie"})
+    const cookiePolicyInfoBox = page.getByText('Twoje ustawienia zostały')
+    // Act
+    await customiseButton.click()
+    // Assert
+    await expect(cookiePolicyInfoBox).toContainText('Twoje ustawienia zostały zapisane')
+    await page.close();
 })
 
