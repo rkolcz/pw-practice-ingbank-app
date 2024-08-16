@@ -1,8 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { LoginPage } from "../../Page-object/loginPages";
+import xssAttacksTestData from "../../test-data/xssAttacksTestData.json"
+
+/*
+//NOTE - lack of test data: password
+*/
 
 test.beforeEach( async ({page}) => {
-    await page.goto('https://login.ingbank.pl/mojeing/app/#login')
+    await page.goto('https://login.ingbank.pl/mojeing/app/#login', {waitUntil: "load"})
     const loginPage = new LoginPage(page)
     await loginPage.acceptCookiePolicy()
 
@@ -82,10 +87,13 @@ test.describe('Should validate login form & prevent from basis attacks', () => {
     test('Should prevent example of XSS attacks in login field', async ({ page }) => {
         // Arrange
         const loginPage = new LoginPage(page)
-        const maliciousInput = "<script>alert('XSS attack!')</script>"
+        const xssAttacksScript = xssAttacksTestData.testData
         // Act
-        await loginPage.fillLoginField(maliciousInput)
-        await loginPage.clickLoginSubmitButton()
+        for (let i = 0; i < xssAttacksScript.length; i++) {
+            const maliciousInputAll = xssAttacksScript[i];
+            await loginPage.fillLoginField(maliciousInputAll)
+            await loginPage.clickLoginSubmitButton()
+        }
         // Assert
         await loginPage.blockFullNameAndNumberFormatValidationInfo()
         await page.close();

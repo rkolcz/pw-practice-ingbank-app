@@ -27,6 +27,9 @@ export default defineConfig({
     baseURL: 'https://www.ing.pl/',
 
     trace: 'on-first-retry',
+    launchOptions: {
+      // slowMo: 200,
+    }
   },
 
 

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { HomePage } from "../../Page-object/homePage";
 
 test.beforeEach( async ({page}) => {
-    await page.goto('/')
+    await page.goto('/', {waitUntil: "commit"})
 })
 
 
